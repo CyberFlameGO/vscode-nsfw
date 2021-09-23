@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - vscode
       - release/*
   pull_request:
 
@@ -13,8 +13,8 @@ jobs:
     name: Tests
     strategy:
         matrix:
-          node: [10, 12]
-          os: [windows-2016, ubuntu-16.04, ubuntu-18.04, macOS-latest]
+          node: [14]
+          os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@master
