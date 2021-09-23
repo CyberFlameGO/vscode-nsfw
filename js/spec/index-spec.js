@@ -473,6 +473,10 @@ describe('Node Sentinel File Watcher', function() {
     });
 
     it('does not loop endlessly when watching directories with recursive symlinks', async function () {
+      if (process.platform === 'win32') {
+        this.skip(); // symlinks require admin permissions on Windows
+      }
+
       await fse.mkdir(path.join(workDir, 'test'));
       await fse.symlink(path.join(workDir, 'test'), path.join(workDir, 'test', 'link'));
 
