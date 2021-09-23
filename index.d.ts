@@ -1,4 +1,4 @@
-declare module 'nsfw' {
+declare module 'vscode-nsfw' {
 
     export = NsfwFunction;
 
