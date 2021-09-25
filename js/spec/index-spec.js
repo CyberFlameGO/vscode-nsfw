@@ -352,6 +352,9 @@ describe('Node Sentinel File Watcher', function() {
     });
 
     it('can listen for an event after deleting and restoring root', async function () {
+      if (process.platform !== 'darwin') {
+        this.skip(); // only supported on macOS
+      }
       const file = 'another_test.file';
       const inPath = path.join(workDir, 'test4');
       let eventFound = false;
@@ -585,6 +588,30 @@ describe('Node Sentinel File Watcher', function() {
   });
 
   describe('Errors', function() {
+    it('can gracefully recover when the watch folder is deleted', async function () {
+      if (process.platform === 'darwin') {
+        this.skip(); // only on Windows & Linux
+      }
+      const inPath = path.join(workDir, 'test4');
+      let erroredOut = false;
+      let watch = await nsfw(
+        inPath,
+        () => { },
+        { debounceMS: DEBOUNCE, errorCallback() { erroredOut = true; } }
+      );
+
+      try {
+        await watch.start();
+        await sleep(TIMEOUT_PER_STEP);
+        await fse.remove(inPath);
+        await sleep(TIMEOUT_PER_STEP);
+
+        assert.ok(erroredOut);
+      } finally {
+        await watch.stop();
+        watch = null;
+      }
+    });
     it('Can pass falsy values to errorCallback', async function() {
       const ok = [undefined, null, 0, '', false];
       const notOk = [1, true, 'a', {}, []];
