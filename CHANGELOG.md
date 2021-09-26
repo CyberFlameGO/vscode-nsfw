@@ -2,7 +2,6 @@
 
 ## 2.1.5 (internal)
 
-- [[`a450dc9b1e`](https://github.com/microsoft/vscode-nsfw/commit/a450dc9b1e)] macOS: improve `demangle` to emit create events in some cases
 - [[`b77605df39`](https://github.com/microsoft/vscode-nsfw/commit/b77605df39)] macOS: continue to watch when root is deleted
 
 ## 2.1.4 (internal)
