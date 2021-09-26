@@ -48,7 +48,7 @@ void FSEventsServiceCallback(
     } else if (isRenamed && !(isCreated || isModified || isRemoved)) {
       renamedPaths->push_back(paths[i]);
     } else {
-      eventsService->demangle(paths[i], isCreated || isRenamed);
+      eventsService->demangle(paths[i]);
     }
   }
   eventsService->rename(renamedPaths);
@@ -59,19 +59,16 @@ void FSEventsService::create(std::string path) {
   dispatch(CREATED, path);
 }
 
-void FSEventsService::demangle(std::string path, bool gotCreatedOrRenamed) {
+void FSEventsService::demangle(std::string path) {
   struct stat file;
   if (stat(path.c_str(), &file) != 0) {
     remove(path);
     return;
   }
 
-  bool modifiedAfterCreation = file.st_mtimespec.tv_sec > file.st_birthtimespec.tv_sec;
-  if (modifiedAfterCreation) {
+  if (file.st_birthtimespec.tv_sec != file.st_mtimespec.tv_sec) {
     modify(path);
-  } 
-  
-  if (gotCreatedOrRenamed || !modifiedAfterCreation) {
+  } else {
     create(path);
   }
 }
@@ -131,13 +128,13 @@ void FSEventsService::rename(std::vector<std::string> *paths) {
       } else if (!sideAExists && sideBExists) {
         mQueue->enqueue(RENAMED, binIterator->first, sideA, binIterator->first, sideB);
       } else {
-        demangle(fullSideA, true);
-        demangle(fullSideB, true);
+        demangle(fullSideA);
+        demangle(fullSideB);
       }
 
     } else {
       for (auto pathIterator = binIterator->second->begin(); pathIterator != binIterator->second->end(); ++pathIterator) {
-        demangle(binIterator->first + "/" + *pathIterator, true);
+        demangle(binIterator->first + "/" + *pathIterator);
       }
     }
     delete binIterator->second;
